@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Brain</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <link rel="stylesheet" href="https://jdumqdatenehmcxwiztc.supabase.co/functions/v1/my-brain-css?v=2" />
+</head>
+<body>
+  <div id="bootFallback" style="font-family:Arial,sans-serif;direction:rtl;padding:24px">טוען את My Brain…</div>
+  <noscript>My Brain דורש JavaScript כדי לפעול.</noscript>
+  <script src="https://jdumqdatenehmcxwiztc.supabase.co/functions/v1/my-brain-boot?v=5"></script>
+  <script>
+    setTimeout(function(){
+      var f=document.getElementById('bootFallback');
+      if(f && document.body.innerText.indexOf('טוען את My Brain')>=0){
+        f.innerHTML='<h2>My Brain</h2><p>האפליקציה לא נטענה. רענן את הדף.</p>';
+      }
+    },8000);
+  </script>
+</body>
+</html>
