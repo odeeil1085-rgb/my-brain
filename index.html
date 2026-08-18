@@ -6,19 +6,108 @@
   <title>My Brain</title>
   <meta name="robots" content="noindex,nofollow" />
   <meta name="referrer" content="no-referrer" />
-  <link rel="stylesheet" href="https://jdumqdatenehmcxwiztc.supabase.co/functions/v1/my-brain-css?v=2" />
+  <link rel="stylesheet" href="./styles.css?v=3" />
 </head>
 <body>
-  <div id="bootFallback" style="font-family:Arial,sans-serif;direction:rtl;padding:24px">טוען את My Brain…</div>
-  <noscript>My Brain דורש JavaScript כדי לפעול.</noscript>
-  <script src="https://jdumqdatenehmcxwiztc.supabase.co/functions/v1/my-brain-boot?v=5"></script>
-  <script>
-    setTimeout(function(){
-      var f=document.getElementById('bootFallback');
-      if(f && document.body.innerText.indexOf('טוען את My Brain')>=0){
-        f.innerHTML='<h2>My Brain</h2><p>האפליקציה לא נטענה. רענן את הדף.</p>';
-      }
-    },8000);
-  </script>
+  <section id="auth" class="auth">
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.12em;color:#6b7280;margin-bottom:8px">PRIVATE AI VAULT</div>
+      <h1>My Brain</h1>
+      <p style="color:#6b7280;line-height:1.6">הספרייה האישית שלך למסמכים, תמונות, מיילים והערות.</p>
+      <label for="password">סיסמה</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="הסיסמה של My Brain" />
+      <button id="loginBtn">כניסה</button>
+      <div id="loginMsg" class="status"></div>
+    </div>
+  </section>
+
+  <div id="app" class="hidden">
+    <aside class="sidebar">
+      <div class="brand">My Brain</div>
+      <button data-nav="home" class="active">⌂ Home</button>
+      <button data-nav="all">◫ All Knowledge</button>
+      <button data-nav="topics">⌘ Topics</button>
+      <button data-nav="images">▧ Images</button>
+      <button data-nav="documents">▤ Documents</button>
+      <button data-nav="bulk">⇧ ייבוא מסיבי</button>
+      <button id="logout">↪ יציאה</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="searchbar"><input id="search" placeholder="חפש בכל הידע שלך…"><button id="searchBtn">חפש</button></div>
+        <button id="addNote">＋ Note</button>
+      </header>
+
+      <section class="view active" data-view="home">
+        <div class="pagehead"><div><h1>הראש השני שלך.</h1><p class="muted">כל מה ששמרת, במקום אחד.</p></div></div>
+        <div class="stats">
+          <div class="stat"><span>פריטי ידע</span><b id="stItems">0</b></div>
+          <div class="stat"><span>Topics</span><b id="stTopics">0</b></div>
+          <div class="stat"><span>מסמכים</span><b id="stDocs">0</b></div>
+          <div class="stat"><span>תמונות</span><b id="stImages">0</b></div>
+        </div>
+        <div class="panel"><h2>אחרונים</h2><div id="recent"></div></div>
+      </section>
+
+      <section class="view" data-view="all">
+        <div class="pagehead"><h1 id="allTitle">All Knowledge</h1></div>
+        <div id="allItems"></div>
+      </section>
+
+      <section class="view" data-view="topics">
+        <div class="pagehead"><h1>Topics</h1><button id="newTopic">＋ Topic</button></div>
+        <div id="topics" class="grid"></div>
+      </section>
+
+      <section class="view" data-view="images">
+        <div class="pagehead"><h1>Images</h1></div>
+        <div id="images" class="imagegrid"></div>
+      </section>
+
+      <section class="view" data-view="documents">
+        <div class="pagehead"><h1>Documents</h1></div>
+        <div id="docs"></div>
+      </section>
+
+      <section class="view" data-view="bulk">
+        <div class="pagehead"><div><h1>ייבוא מסיבי</h1><p class="muted">תמונות, מסמכים ומיילים בכמות גדולה.</p></div></div>
+        <div class="bulkgrid">
+          <div class="panel">
+            <h2>תמונות ומסמכים</h2>
+            <label>Topic לכל הקבצים</label>
+            <select id="bulkTopic"></select>
+            <div id="fileDrop" class="dropzone">⇧<br><b>גרור לכאן קבצים</b><br><span>או לחץ לבחירה מרובה</span></div>
+            <input id="bulkFiles" class="hidden" type="file" multiple>
+            <div id="fileQueue"></div>
+            <button id="bulkUpload">העלה את כל הקבצים</button>
+            <div id="bulkStatus" class="status"></div>
+          </div>
+          <div class="panel">
+            <h2>מיילים</h2>
+            <p class="muted">קובצי EML או MBOX.</p>
+            <label>Topic לכל המיילים</label>
+            <select id="mailTopic"></select>
+            <div id="mailDrop" class="dropzone">✉<br><b>גרור EML / MBOX</b><br><span>או לחץ לבחירה</span></div>
+            <input id="mailFiles" class="hidden" type="file" accept=".eml,.mbox,message/rfc822" multiple>
+            <div id="mailQueue"></div>
+            <button id="mailImport">ייבא את כל המיילים</button>
+            <div id="mailStatus" class="status"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="backdrop" class="backdrop hidden"></div>
+  <aside id="drawer" class="drawer hidden">
+    <button id="closeDrawer" class="close">×</button>
+    <h2 id="drawerTitle"></h2>
+    <div id="drawerMeta" class="muted"></div>
+    <div id="drawerPreview"></div>
+    <button id="openSource" class="hidden">פתח מקור</button>
+  </aside>
+
+  <script src="./app.js?v=3"></script>
 </body>
 </html>
