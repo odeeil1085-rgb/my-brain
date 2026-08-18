@@ -6,7 +6,7 @@
   <title>My Brain</title>
   <meta name="robots" content="noindex,nofollow" />
   <meta name="referrer" content="no-referrer" />
-  <link rel="stylesheet" href="./styles.css?v=6" />
+  <link rel="stylesheet" href="./styles.css?v=7" />
 </head>
 <body>
   <section id="auth" class="auth">
@@ -127,7 +127,55 @@
     <button id="openSource" class="hidden">פתח מקור</button>
   </aside>
 
-  <script src="./app.js?v=6"></script>
-  <script src="./ai.js?v=6"></script>
+  <script src="./app.js?v=7"></script>
+  <script>
+  (function(){
+    const SB='https://jdumqdatenehmcxwiztc.supabase.co';
+    const PK='sb_publishable_TdG-fJSXKyKEKnqVPFomuA_aDYAI_t0';
+    const ENDPOINT=SB+'/functions/v1/my-brain-ai';
+    const e=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function fillAskTopics(){
+      const sel=document.getElementById('askTopic');
+      if(!sel || typeof topics==='undefined') return;
+      const current=sel.value;
+      sel.innerHTML='<option value="">כל הידע</option>'+topics.map(t=>`<option value="${t.id}">${e(typeof topicPath==='function'?topicPath(t.id):t.name)}</option>`).join('');
+      if(current) sel.value=current;
+    }
+    async function askDirect(){
+      const q=document.getElementById('askQ').value.trim();
+      const ans=document.getElementById('aiAnswer');
+      const src=document.getElementById('aiSources');
+      const btn=document.getElementById('askBtn');
+      if(!q){ans.textContent='כתוב שאלה קודם.';return;}
+      const access=sessionStorage.getItem('mb_token');
+      if(!access){ans.textContent='החיבור פג. צא והיכנס מחדש.';return;}
+      btn.disabled=true;
+      ans.textContent='חושב ומחפש בתוך הידע שלך…';
+      src.innerHTML='<div class="empty">מחפש מקורות…</div>';
+      try{
+        const r=await fetch(ENDPOINT,{method:'POST',headers:{apikey:PK,Authorization:'Bearer '+access,'Content-Type':'application/json'},body:JSON.stringify({question:q,topic_id:document.getElementById('askTopic').value||null})});
+        const raw=await r.text();
+        let j={};try{j=raw?JSON.parse(raw):{}}catch{}
+        if(!r.ok) throw new Error(j.error?.message||j.error||j.message||raw||('HTTP '+r.status));
+        ans.textContent=j.answer||'לא התקבלה תשובה.';
+        const sources=Array.isArray(j.sources)?j.sources:[];
+        src.innerHTML=sources.length?sources.map(s=>`<button class="sourcecard" data-source-id="${e(s.id)}"><b>[${e(s.n)}] ${e(s.title)}</b><span class="small muted">${e(s.item_type||'')}</span><span class="small">${e((s.excerpt||'').slice(0,220))}</span></button>`).join(''):'<div class="empty">אין מקורות לתשובה.</div>';
+        src.querySelectorAll('[data-source-id]').forEach(b=>b.addEventListener('click',()=>{if(typeof openItem==='function')openItem(b.dataset.sourceId)}));
+      }catch(err){
+        ans.textContent='שגיאה: '+(err?.message||err);
+        src.innerHTML='<div class="empty">לא נטענו מקורות.</div>';
+      }finally{btn.disabled=false;}
+    }
+    function wire(){
+      const btn=document.getElementById('askBtn');
+      const q=document.getElementById('askQ');
+      if(btn){btn.onclick=null;btn.addEventListener('click',askDirect);}
+      if(q)q.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();askDirect();}});
+      fillAskTopics();
+      setTimeout(fillAskTopics,800);
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
+  })();
+  </script>
 </body>
 </html>
